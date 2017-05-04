@@ -35,6 +35,7 @@ and analyizing the feature require some other Python libraries:
 * `matplotlib`: plotting tSNE result
 
 To compile `feature`, type
+
     make feature
 
 To generate necessary files for `feature` to run, type
