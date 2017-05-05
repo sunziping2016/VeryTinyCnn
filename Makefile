@@ -1,4 +1,4 @@
-features = 4 8 12 16 20 40 80 200
+features = 004 008 012 016 020 040 080 200
 
 CXXFLAGS = -Iinclude -std=c++11 -O3 -Wall -Wextra -Wno-unused-parameter -lpthread -lX11
 AVX_ENABLED = $(shell grep avx2 /proc/cpuinfo)
@@ -23,19 +23,19 @@ hist-tsne: data/tsne/hist-raw.png $(addprefix data/tsne/hist-, $(addsuffix .png,
 
 data/tsne/nn-raw.png: scripts/tsne.py data/features/nn-raw.dat data/filelists.txt
 	mkdir -p data/tsne
-	python $< data/features/nn-raw.dat data/filelists.txt $@
+	python $< data/features/nn-raw.dat $@ data/filelists.txt data/labels.txt
 
 data/tsne/hist-raw.png: scripts/tsne.py data/features/hist-raw.dat data/filelists.txt
 	mkdir -p data/tsne
-	python $< data/features/hist-raw.dat data/filelists.txt $@
+	python $< data/features/hist-raw.dat $@ data/filelists.txt data/labels.txt
 
 data/tsne/nn-%.png: scripts/tsne.py data/features/nn-%.dat data/filelists.txt
 	mkdir -p data/tsne
-	python $< data/features/nn-$*.dat data/filelists.txt $@
+	python $< data/features/nn-$*.dat $@ data/filelists.txt data/labels.txt
 
 data/tsne/hist-%.png: scripts/tsne.py data/features/hist-%.dat data/filelists.txt
 	mkdir -p data/tsne
-	python $< data/features/hist-$*.dat data/filelists.txt $@
+	python $< data/features/hist-$*.dat $@ data/filelists.txt data/labels.txt
 
 data/features/nn-%.dat: feature data/pca/nn-%.dat data/features/nn-raw.dat
 	mkdir -p data/features
@@ -66,7 +66,7 @@ data/alexnet.dat: scripts/gen_alexnet.py
 
 data/filelists.txt: scripts/gen_filelists.py
 	mkdir -p data
-	python $< image $@
+	python $< image $@ data/labels.txt
 
 clean:
 	rm feature data -rf
