@@ -34,17 +34,14 @@ and analyizing the feature require some other Python libraries:
 * `sklearn`: generating PCA data and calculating tSNE with extracted features
 * `matplotlib`: plotting tSNE result
 
-To compile `feature`, type
+To extract features from images, type
 
-    make feature
+    make feature data/alexnet data/pca/nn-<feature-num>.dat
+    ./feature -a data/alexnet -p data/pca/nn-<feature-num>.dat -v -o <output> <images>...
 
-To generate necessary files for `feature` to run, type
+To plot extracted features (feature number set in Makefile) with tSNE, type
 
-    make nn-model
-
-To plot extracted features with tSNE, type
-
-    make nn-tsne
+    make
 
 Here is the help message for `feature`
 
