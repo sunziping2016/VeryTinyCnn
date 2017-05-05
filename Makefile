@@ -1,4 +1,4 @@
-features = 004 008 012 016 020 040 080 200
+features = 004 008 012 016 020 040 080 200 400
 
 CXXFLAGS = -Iinclude -std=c++11 -O3 -Wall -Wextra -Wno-unused-parameter -lpthread -lX11
 AVX_ENABLED = $(shell grep avx2 /proc/cpuinfo)
@@ -9,7 +9,12 @@ HEADERS = include/threadpool.h include/avx.h include/tensor/tensor.h \
 	include/layers/maxpool2d.h include/layers/linear.h include/layers/reshape.h \
 	include/layers/bias.h
 
-all: nn-tsne hist-tsne
+all: nn-tsne hist-tsne data/closest_accuracy.txt
+
+data/closest_accuracy.txt: scripts/closest_accuracy.py data/filelists.txt nn-features hist-features
+	mkdir -p data
+	python $< data/filelists.txt $(addprefix data/features/nn-, $(addsuffix .dat, $(features))) data/features/nn-raw.dat \
+			  $(addprefix data/features/hist-, $(addsuffix .dat, $(features))) data/features/hist-raw.dat | tee $@
 
 nn-model: data/alexnet.dat $(addprefix data/pca/nn-, $(addsuffix .dat, $(features)))
 
