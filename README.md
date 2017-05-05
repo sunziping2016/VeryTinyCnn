@@ -27,8 +27,8 @@ even run a little faster compared to some modern deep learning frameworks when t
 
 # Compile and Run
 `feature.cpp` is an example application of VeryTinyCnn. It uses Alexnet to extract feature and PCA to reduce feature dimension.
-Besides VeryTinyCnn, it only depends on `CImg.h`, which I've already included in this git repository. However, generating the modal
-and analyizing the feature require some other Python libraries:
+Besides VeryTinyCnn, it only depends on `CImg.h`. However, generating the modals and analyizing the feature require some other
+Python libraries:
 
 * `pytorch`: generating Alexnet data
 * `sklearn`: generating PCA data and calculating tSNE with extracted features
