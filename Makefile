@@ -12,7 +12,14 @@ HEADERS = include/threadpool.h include/avx.h include/tensor/tensor.h \
 all: nn-tsne-plt hist-tsne-plt data/closest_accuracy.txt data/dist/index.html
 
 visual-deploy: data/dist/index.html
-	git checkout -b gh-pages
+	git checkout gh-pages
+	git rm feature.cpp include Makefile README.md scripts image -rf
+	mv data/dist/* .
+	echo data > .gitignore
+	git add .
+	git commit -m "build on $$(date)"
+	git push origin gh-pages
+	git checkout master
 
 data/dist/index.html: scripts/visual.html nn-tsne hist-tsne data/filelists.txt scripts/colors.txt
 	mkdir -p data/dist/image
