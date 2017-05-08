@@ -240,6 +240,7 @@ const tooltip = document.getElementById('tooltip'),
     tooltip_image = tooltip.getElementsByTagName('img')[0],
     tooltip_label = tooltip.getElementsByTagName('p')[0];
 function show_tooltip(pos, image, label) {
+    tooltip_image.src = '';
     tooltip_image.src = image;
     tooltip_label.innerText = label;
     tooltip.style.left = `${pos[0]}px`;
