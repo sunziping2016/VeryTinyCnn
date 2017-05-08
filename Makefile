@@ -9,7 +9,25 @@ HEADERS = include/threadpool.h include/avx.h include/tensor/tensor.h \
 	include/layers/maxpool2d.h include/layers/linear.h include/layers/reshape.h \
 	include/layers/bias.h
 
-all: nn-tsne-plt hist-tsne-plt data/closest_accuracy.txt
+all: nn-tsne-plt hist-tsne-plt data/closest_accuracy.txt data/dist/index.html
+
+visual-deploy: data/dist/index.html
+	git checkout -b gh-pages
+
+data/dist/index.html: scripts/visual.html nn-tsne hist-tsne data/filelists.txt scripts/colors.txt
+	mkdir -p data/dist/image
+	cp scripts/visual.html data/dist/index.html
+	cp data/filelists.txt data/dist/images.txt
+	paste data/labels.txt scripts/colors.txt > data/dist/labels.txt
+	rm -rf data/dist/plots.txt
+	for i in tsne/nn-raw.dat $(addprefix tsne/nn-, $(addsuffix .dat, $(features))) \
+			 tsne/hist-raw.dat $(addprefix tsne/hist-, $(addsuffix .dat, $(features))); do \
+		echo $$i >> data/dist/plots.txt; \
+	done
+	cp -r data/tsne data/dist
+	for i in $$(cut -f 1 data/filelists.txt); do \
+		convert -thumbnail 128x128 $$i data/dist/$$i; \
+	done
 
 data/closest_accuracy.txt: scripts/closest_accuracy.py data/filelists.txt nn-features hist-features
 	mkdir -p data
@@ -89,4 +107,4 @@ data/filelists.txt: scripts/gen_filelists.py
 clean:
 	rm feature data -rf
 
-.PHONY: all clean nn-model nn-features nn-tsne hist-features hist-tsne
+.PHONY: all clean nn-model nn-features nn-tsne hist-features hist-tsne visual-deploy

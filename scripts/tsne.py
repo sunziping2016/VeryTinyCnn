@@ -2,7 +2,6 @@ import sys
 import numpy as np
 from sklearn.manifold import TSNE
 
-
 features_num = int(sys.argv[1])
 features_name = sys.argv[2] if len(sys.argv) >= 2 else 'features.dat'
 output_name = sys.argv[3] if len(sys.argv) >= 4 else 'tsne.dat'
@@ -15,4 +14,6 @@ elif features.shape[1] == 2:
 	points = features
 elif features.shape[1] == 1:
 	points = np.concatenate([features, features], axis=1)
+max, min = points.max(axis = 0), points.min(axis = 0)
+points = (points - (max + min) / 2) / (max - min) * 2
 points.astype(dtype=np.float32).tofile(output_name)

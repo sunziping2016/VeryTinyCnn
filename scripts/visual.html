@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+<style>
+html, body {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+svg, canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+canvas {
+    pointer-events: none;
+}
+
+.dropdown {
+  position: absolute;
+  display: inline-block;
+  text-align: left;
+  width: 140px;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+}
+
+.dropdown-text {
+  cursor: pointer;
+  position: absolute;
+  text-indent: 10px;
+  line-height: 32px;
+  background-color: rgba(224, 224, 224, .8);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255,255,255, .9) inset, 0 1px 3px rgba(0,0,0, .1);
+  width: 100%;
+}
+
+.dropdown-text:after {
+  position: absolute;
+  right: 6px;
+  top: 15px;
+  content: '';
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 5px 4px 0 4px;
+  border-color: #555 transparent transparent transparent;
+  transition: all .25s;
+}
+
+.dropdown-text, .dropdown-content {
+  color: #333;
+  text-shadow: 0 1px #fff;
+}
+
+.dropdown-toggle {
+  font-size: 0;
+  z-index: 1;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  border: none;
+  padding: 0;
+  margin: 0 0 0 1px;
+  background: transparent;
+  text-indent: -10px;
+  height: 34px;
+  width: 100%;
+}
+
+.dropdown-toggle:focus {
+  outline: 0;
+}
+
+.dropdown-content {
+  transition: all .25s ease;
+  position: absolute;
+  top: 32px;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  border-radius: 3px;
+  text-indent: 10px;
+  line-height: 32px;
+  background-color: rgba(224, 224, 224, .8);
+  border: 1px solid #ccc;
+  width: 140px;
+  overflow-y: auto;
+}
+
+.dropdown-content ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-content li {
+  cursor: pointer;
+}
+
+.dropdown-content a {
+  display: block;
+}
+
+.dropdown-content li:hover {
+  background: rgba(240, 240, 240, .8);
+}
+
+
+.dropdown-toggle:hover ~ .dropdown-text,
+.dropdown-toggle:focus ~ .dropdown-text {
+  background-color: rgba(240, 240, 240, .8);
+}
+
+.dropdown-toggle:focus ~ .dropdown-text {
+  box-shadow: 0 1px 3px rgba(0,0,0, .2) inset, 0 1px 0 rgba(255,255,255, 0.8);
+  z-index: 2;
+}
+
+.dropdown-toggle:focus ~ .dropdown-text:after {
+  border-width: 0 4px 5px 4px;
+  border-color: transparent transparent #555 transparent;
+}
+
+/*.dropdown-content:hover,*/
+.dropdown-toggle:focus ~ .dropdown-content {
+  opacity: 1;
+  visibility:visible;
+  top: 42px;
+}
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  stroke-opacity: 0.1;
+  shape-rendering: crispEdges;
+}
+
+button {
+  position: absolute;
+  display: inline-block;
+  padding: 0;
+  box-sizing: border-box;
+  width: 142px;
+  height: 36px;
+  top: 50px;
+  left: 8px;
+  line-height: 32px;
+  background-color: rgba(224, 224, 224, .8);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255,255,255, .9) inset, 0 1px 3px rgba(0,0,0, .1);
+  color: #333;
+  text-shadow: 0 1px #fff;
+  outline: 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+button:hover, button:hover {
+    background: rgba(240, 240, 240, .8);
+}
+button:active {
+    box-shadow: 0 1px 3px rgba(0,0,0, .2) inset, 0 1px 0 rgba(255,255,255, 0.8);
+}
+
+.tooltip {
+    position: absolute;
+    padding: 0;
+    margin: 0;
+}
+
+.tooltip-content {
+    transition: all .25s ease;
+    position: absolute;
+    top: 42px;
+    opacity: 1;
+    border-radius: 3px;
+    text-indent: 10px;
+    line-height: 32px;
+    background-color: rgba(224, 224, 224, .8);
+    border: 1px solid #ccc;
+    width: 150px;
+    visibility: visible;
+}
+
+.empty-tooltip .tooltip-content {
+    opacity: 0;
+    visibility: hidden;
+    top: 32px;
+}
+
+.tooltip-content img {
+    display: block;
+    margin: 20px auto;
+}
+
+.tooltip-content p {
+    text-align: center;
+}
+
+</style>
+</head>
+<body>
+<svg id="plot-svg"></svg>
+<canvas id="plot-canvas"></canvas>
+<div id="plotlist" class="dropdown">
+    <input class="dropdown-toggle" type="text">
+    <div class="dropdown-text">Select data ...</div>
+    <div class="dropdown-content">
+        <ul>
+        </ul>
+    </div>
+</div>
+<div class="tooltip empty-tooltip" id="tooltip">
+    <div class="tooltip-content">
+        <img>
+        <p></p>
+    </div>
+</div>
+<button id="reset-btn">Reset viewport</div>
+<script src="//cdn.bootcss.com/d3/4.8.0/d3.min.js"></script>
+<script src="//cdn.bootcss.com/d3-zoom/1.1.4/d3-zoom.min.js"></script>
+<script src="//cdn.bootcss.com/d3-shape/1.0.6/d3-shape.min.js"></script>
+<script>
+const margin = 0.05
+
+const tooltip = document.getElementById('tooltip'),
+    tooltip_image = tooltip.getElementsByTagName('img')[0],
+    tooltip_label = tooltip.getElementsByTagName('p')[0];
+function show_tooltip(pos, image, label) {
+    tooltip_image.src = image;
+    tooltip_label.innerText = label;
+    tooltip.style.left = `${pos[0]}px`;
+    tooltip.style.top = `${pos[1]}px`;
+    tooltip.classList.remove('empty-tooltip');
+}
+function hide_tooltip() {
+    tooltip.classList.add('empty-tooltip');
+}
+function basename(str) {
+    let base = new String(str).substring(str.lastIndexOf('/') + 1);
+    if(base.lastIndexOf(".") != -1)
+        base = base.substring(0, base.lastIndexOf("."));
+    return base;
+}
+
+function lower_bound(arr, func) {
+    let low = 0, high = arr.length, middle;
+    while (high > low) {
+        middle = Math.floor((low + high) / 2);
+        if (func(arr[middle]))
+            low = middle + 1;
+        else
+            high = middle;
+    }
+    return low;
+}
+
+function plot(canvas, points, imagelist, labellist, scales, pointsize) {
+    if (!pointsize)
+        pointsize = 2.5;
+    let context = canvas.getContext('2d');
+    window.scales = scales;
+    context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    for (let i = 0; i < points.length; ++i) {
+        const x = scales.x(points[i].x), y = scales.y(points[i].y);
+        context.beginPath();
+        context.arc(x, y, pointsize, 0, 2*Math.PI);
+        context.fillStyle = labellist[imagelist[i].l].c;
+        context.fill();
+    }
+}
+
+(async () => {
+    const svg = d3.select('#plot-svg'), canvas = document.getElementById('plot-canvas');
+    let width = svg.node().clientWidth, height = svg.node().clientHeight,
+        smaller = Math.min(width, height);
+    canvas.width = width;
+    canvas.height = height;
+    const x = d3.scaleLinear()
+        .domain([-width / smaller - 0.1, width / smaller + 0.1])
+        .range([0, width]);
+    const y = d3.scaleLinear()
+        .domain([-height / smaller - 0.1, height / smaller + 0.1])
+        .range([0, height]);
+
+    const xAxis = d3.axisBottom(x)
+        .ticks(width / height * 10)
+        .tickSize(height)
+        .tickPadding(8 - height);
+    const yAxis = d3.axisRight(y)
+        .ticks(10)
+        .tickSize(width)
+        .tickPadding(8 - width);
+
+    const gX = svg.append("g")
+        .attr("class", "axis axis--x")
+        .call(xAxis);
+    const gY = svg.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis);
+
+    const point_size = () => Math.max(d3.zoomTransform(svg.node()).k ** 0.5 * 2.5, 2),
+          update_plot = () => plot(canvas, window.points, imagelist, labellist, {x: xAxis.scale(), y: yAxis.scale()}, point_size());
+
+    const zoom = d3.zoom().on('zoom', () => {
+        //console.log(d3.event.transform.k);
+        gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+        gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+        if (window.points)
+            update_plot();
+    });
+    svg.call(zoom);
+
+    d3.select('#reset-btn').on('click', () => {
+        svg.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity);
+    });
+
+    d3.select(window).on('resize', () => {
+        const oldwidth = width, oldheight = height;
+        width = svg.node().clientWidth;
+        height = svg.node().clientHeight;
+        const xm = (x.domain()[0] + x.domain()[1]) / 2, xs = oldwidth / width,
+              ym = (y.domain()[0] + y.domain()[1]) / 2, ys = oldheight / height;
+        x.domain(x.domain().map(v => (v - xm) / xs + xm)).range([0, width]);
+        y.domain(y.domain().map(v => (v - ym) / ys + ym)).range([0, height])
+        gX.call(xAxis.scale(d3.zoomTransform(svg.node()).rescaleX(x)).tickSize(height).tickPadding(8 - height).ticks(width / height * 10));
+        gY.call(yAxis.scale(d3.zoomTransform(svg.node()).rescaleY(y)).tickSize(width).tickPadding(8 - width));
+        canvas.width = width;
+        canvas.height = height;
+        d3.select('#plotlist .dropdown-content').style('max-height',`${height - 58}px`);
+        if (window.points)
+            update_plot();
+    });
+
+    svg.on('mousemove', (evt) => {
+        const mouse_pos = d3.mouse(svg.node()),
+            pos = [xAxis.scale().invert(mouse_pos[0]), yAxis.scale().invert(mouse_pos[1])];
+            size = xAxis.scale().invert(mouse_pos[0] + point_size()) - pos[0];
+        //let start = performance.now(), end;
+        if (window.sorted_points) {
+            let size2 = size * size, found = false;
+            for (let i = lower_bound(window.sorted_points, a => a.x < pos[0] - size); i < window.sorted_points.length && window.sorted_points[i].x <= pos[0] + size; ++i) {
+                let dx = pos[0] - window.sorted_points[i].x, dy = pos[1] - window.sorted_points[i].y;
+                if (dx * dx + dy * dy <= size2) {
+                    let j = window.sorted_points[i].i;
+                    show_tooltip(mouse_pos, imagelist[j].f, basename(imagelist[j].f));
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                hide_tooltip();
+        }
+        //end = performance.now();
+        //console.log('2: ' + (end - start));
+    })
+
+    let [plotlist, imagelist, labellist] = await Promise.all([
+        new Promise((resolve, reject) => d3.text('plots.txt', (error, data) => error ? reject(error) : resolve(data.split('\n').filter(x => x)))),
+        new Promise((resolve, reject) => d3.text('images.txt', (error, data) => error ? reject(error) : resolve(data.split('\n').filter(x => x).map(x => {
+            let [file, label] = x.split('\t');
+            return {f: file, l: parseInt(label)};
+        })))),
+        new Promise((resolve, reject) => d3.text('labels.txt', (error, data) => error ? reject(error) : resolve(data.split('\n').filter(x => x).map(x => {
+            let [label, color] = x.split('\t');
+            return {l: label, c: color};
+        }))))
+    ]);
+
+    d3.select('#plotlist .dropdown-content').style('max-height',`${height - 58}px`).select('ul').selectAll('li').data(plotlist).enter()
+        .append('li').text(d => d)
+        .on('click', d => (async () => {
+            d3.select('#plotlist .dropdown-text').text(d);
+            let points_buffer = new Float32Array(await new Promise((resolve, reject) => d3.request(d).mimeType('application/octet-stream')
+                    .responseType('arraybuffer').get((error, data) => error ? reject(error) : resolve(data.response))));
+            window.points = [];
+            for (let i = 0; i < points_buffer.length; i += 2)
+                window.points.push({x: points_buffer[i], y: points_buffer[i + 1], i: i / 2});
+            window.sorted_points = window.points.slice().sort((a, b) => a.x < b.x ? -1 : (a.x > b.x ? 1 : 0));
+            if (window.points)
+                update_plot();
+        })());
+})();
+</script>
+</body>
+</html>
