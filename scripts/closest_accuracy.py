@@ -12,5 +12,5 @@ for features_name in sys.argv[2:]:
 	dist = squareform(pdist(features))
 	np.fill_diagonal(dist, np.finfo(np.float32).max)
 	closest = np.argmin(dist, axis=0)
-	accuracy = sum([1 if labels[i] == labels[closest[i]] else 0 for i in range(labels.shape[0])]) / labels.shape[0]
+	accuracy = float(sum([1 if labels[i] == labels[closest[i]] else 0 for i in range(labels.shape[0])])) / labels.shape[0]
 	print('%s\t%f' % (features_name, accuracy))

@@ -9,7 +9,7 @@ HEADERS = include/threadpool.h include/avx.h include/tensor/tensor.h \
 	include/layers/maxpool2d.h include/layers/linear.h include/layers/reshape.h \
 	include/layers/bias.h
 
-all: nn-tsne hist-tsne data/closest_accuracy.txt
+all: nn-tsne-plt hist-tsne-plt data/closest_accuracy.txt
 
 data/closest_accuracy.txt: scripts/closest_accuracy.py data/filelists.txt nn-features hist-features
 	mkdir -p data
@@ -22,25 +22,38 @@ nn-features: data/features/nn-raw.dat $(addprefix data/features/nn-, $(addsuffix
 
 hist-features: data/features/hist-raw.dat $(addprefix data/features/hist-, $(addsuffix .dat, $(features)))
 
-nn-tsne: data/tsne/nn-raw.png $(addprefix data/tsne/nn-, $(addsuffix .png, $(features)))
+nn-tsne: data/tsne/nn-raw.dat $(addprefix data/tsne/nn-, $(addsuffix .dat, $(features)))
 
-hist-tsne: data/tsne/hist-raw.png $(addprefix data/tsne/hist-, $(addsuffix .png, $(features)))
+hist-tsne: data/tsne/hist-raw.dat $(addprefix data/tsne/hist-, $(addsuffix .dat, $(features)))
 
-data/tsne/nn-raw.png: scripts/tsne.py data/features/nn-raw.dat data/filelists.txt
+nn-tsne-plt: data/tsne-plt/nn-raw.png $(addprefix data/tsne-plt/nn-, $(addsuffix .png, $(features)))
+
+hist-tsne-plt: data/tsne-plt/hist-raw.png $(addprefix data/tsne-plt/hist-, $(addsuffix .png, $(features)))
+
+
+data/tsne-plt/nn-%.png: scripts/plot.py data/tsne/nn-%.dat data/filelists.txt
+	mkdir -p data/tsne-plt
+	python $< data/tsne/nn-$*.dat $@ data/filelists.txt data/labels.txt
+
+data/tsne-plt/hist-%.png: scripts/plot.py data/tsne/hist-%.dat data/filelists.txt
+	mkdir -p data/tsne-plt
+	python $< data/tsne/hist-$*.dat $@ data/filelists.txt data/labels.txt
+
+data/tsne/nn-raw.dat: scripts/tsne.py data/features/nn-raw.dat
 	mkdir -p data/tsne
-	python $< data/features/nn-raw.dat $@ data/filelists.txt data/labels.txt
+	python $< 4096 data/features/nn-raw.dat $@
 
-data/tsne/hist-raw.png: scripts/tsne.py data/features/hist-raw.dat data/filelists.txt
+data/tsne/hist-raw.dat: scripts/tsne.py data/features/hist-raw.dat
 	mkdir -p data/tsne
-	python $< data/features/hist-raw.dat $@ data/filelists.txt data/labels.txt
+	python $< 4096 data/features/hist-raw.dat $@
 
-data/tsne/nn-%.png: scripts/tsne.py data/features/nn-%.dat data/filelists.txt
+data/tsne/nn-%.dat: scripts/tsne.py data/features/nn-%.dat
 	mkdir -p data/tsne
-	python $< data/features/nn-$*.dat $@ data/filelists.txt data/labels.txt
+	python $< $* data/features/nn-$*.dat $@
 
-data/tsne/hist-%.png: scripts/tsne.py data/features/hist-%.dat data/filelists.txt
+data/tsne/hist-%.dat: scripts/tsne.py data/features/hist-%.dat
 	mkdir -p data/tsne
-	python $< data/features/hist-$*.dat $@ data/filelists.txt data/labels.txt
+	python $< $* data/features/hist-$*.dat $@
 
 data/features/nn-%.dat: feature data/pca/nn-%.dat data/features/nn-raw.dat
 	mkdir -p data/features
